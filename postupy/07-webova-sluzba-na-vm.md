@@ -44,7 +44,24 @@ služba běží, ale NSG příchozí provoz na port 80 nepustí (výchozí pravi
 Managed Certificate), proč v praxi přesměrovat HTTP (80) na HTTPS (443), a že **Effective security rules** u VM ukáže
 všechna pravidla, která na provoz působí, včetně výchozích.
 
-## 5. Volitelně: zavřít HTTP, nechat jen HTTPS
+## 5. Počítadlo útoků: proč je veřejná IP nebezpečná
+
+Nahoře na stránce je karta **„Kdo se sem od spuštění dobývá“**. Nechte VM s otevřenými porty 22, 80 a 443 běžet
+pár hodin a průběžně se na ni dívejte:
+
+- **Pokusy o SSH přihlášení** a nejčastěji zkoušená jména (`root`, `admin`, `ubuntu`, `test` ...): roboti zkoušejí
+  hesla na veřejné IP adresy s otevřeným portem 22 naslepo, bez ohledu na to, co na serveru běží.
+- **Podezřelé HTTP požadavky**: hledání `.env` a `.git` (hesla a klíče), WordPress, admin panelů a pokusy
+  o spuštění příkazů. Na serveru žádná z těch věcí není, roboti zkoušejí naslepo.
+- Posledních 15 pokusů s časem a adresou.
+
+**K diskuzi:** co z toho plyne (SSH jen přes Bastion nebo z vlastní IP, přihlášení jen klíčem, žádná hesla
+v souborech na webu, Microsoft Defender for Cloud, Just-in-time VM access) a jak to zavřít
+([06-nsg-ssh-jen-pres-bastion.md](06-nsg-ssh-jen-pres-bastion.md)).
+
+Souhrn za celou historii logů: `sudo python3 /opt/acmesoft-demo/attack_stats.py --vse`.
+
+## 6. Volitelně: zavřít HTTP, nechat jen HTTPS
 
 Pravidlo `Allow-HTTP-HTTPS` > Destination port ranges jen `443` > **Save**. `http://` přestane odpovídat,
 `https://` jde dál.
@@ -52,4 +69,4 @@ Pravidlo `Allow-HTTP-HTTPS` > Destination port ranges jen `443` > **Save**. `htt
 ## Úklid
 
 1. NSG: smazat `Allow-HTTP-HTTPS`.
-2. Na VM: `sudo apt-get remove -y nginx && sudo rm -rf /var/www/acmesoft-demo /etc/nginx/ssl/acmesoft-demo.*`
+2. Na VM: příkazy v sekci Odebrání v [ukazky/web-na-vm](../ukazky/web-na-vm/README.md).

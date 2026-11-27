@@ -20,6 +20,17 @@
   td:first-child { color: #666; width: 45%; }
   .scheme { font-weight: 700; }
   .note { color: #666; font-size: 14px; }
+  .attack h2 { color: #c50f1f; margin-top: 0; }
+  .counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 12px 0 20px; }
+  .counter { background: #fdf3f4; border-radius: 10px; padding: 12px; }
+  .counter .num { font-size: 32px; font-weight: 700; color: #c50f1f; line-height: 1.1; }
+  .counter .lbl { font-size: 13px; color: #555; }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  h3 { font-size: 15px; margin: 16px 0 6px; }
+  .log { width: 100%; font-size: 13px; }
+  .log td { padding: 4px; border-bottom: 1px solid #f0f0f0; vertical-align: top; word-break: break-all; }
+  .log td:first-child { width: auto; white-space: nowrap; }
+  code { background: #f3f3f3; padding: 1px 4px; border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -28,6 +39,27 @@
   <p>Ukázková (falešná) webová služba na virtuálním počítači v Azure</p>
 </header>
 <main>
+  <div class="card attack" id="attack">
+    <h2>Kdo se sem od spuštění dobývá</h2>
+    <p class="note">Server má veřejnou IP adresu a otevřené porty 22 (SSH), 80 a 443. Od <span id="since">...</span>
+      se o něj pokusili tito návštěvníci. Aktualizace každých 30 s, poslední <span id="updated">...</span>.</p>
+    <div class="counters">
+      <div class="counter"><div class="num" id="ssh-attempts">0</div><div class="lbl">pokusů o SSH přihlášení</div></div>
+      <div class="counter"><div class="num" id="ssh-ips">0</div><div class="lbl">různých IP adres na SSH</div></div>
+      <div class="counter"><div class="num" id="http-suspicious">0</div><div class="lbl">podezřelých HTTP požadavků</div></div>
+      <div class="counter"><div class="num" id="http-requests">0</div><div class="lbl">HTTP požadavků celkem</div></div>
+    </div>
+    <div class="cols">
+      <div><h3>Nejčastěji zkoušená jména (SSH)</h3><table class="log" id="top-users"></table></div>
+      <div><h3>Typy HTTP útoků</h3><table class="log" id="http-kinds"></table></div>
+      <div><h3>Nejaktivnější adresy</h3><table class="log" id="top-ips"></table></div>
+    </div>
+    <h3>Poslední pokusy o SSH</h3>
+    <table class="log" id="ssh-recent"></table>
+    <h3>Poslední podezřelé HTTP požadavky</h3>
+    <table class="log" id="http-recent"></table>
+    <p class="note">IP adresy jsou bez posledního čísla. Data: log SSH (journal) a access log nginx na této VM.</p>
+  </div>
   <div class="card">
     <h2>Spojení</h2>
     <table>
@@ -50,5 +82,38 @@
   <p class="note">Testovací adresy: <a href="/health">/health</a>, <a href="/api/status">/api/status</a>.
   Na HTTPS prohlížeč varuje, protože certifikát je self-signed (nepodepsala ho žádná důvěryhodná autorita).</p>
 </main>
+<script>
+// Texty od útočníků (jména, URL) vkládáme jen přes textContent, nikdy jako HTML.
+function fmt(iso) { return new Date(iso).toLocaleString("cs-CZ", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
+function fill(id, rows) {
+  const table = document.getElementById(id);
+  table.replaceChildren();
+  if (!rows.length) { rows = [["zatím nic"]]; }
+  for (const row of rows) {
+    const tr = table.insertRow();
+    for (const cell of row) { tr.insertCell().textContent = cell; }
+  }
+}
+async function refresh() {
+  try {
+    const r = await fetch("/stats.json", { cache: "no-store" });
+    if (!r.ok) { return; }
+    const s = await r.json();
+    document.getElementById("since").textContent = fmt(s.since);
+    document.getElementById("updated").textContent = fmt(s.updated);
+    document.getElementById("ssh-attempts").textContent = s.ssh.attempts;
+    document.getElementById("ssh-ips").textContent = s.ssh.ips;
+    document.getElementById("http-suspicious").textContent = s.http.suspicious;
+    document.getElementById("http-requests").textContent = s.http.requests;
+    fill("top-users", s.ssh.top_users.map(([u, n]) => [u, n + "x"]));
+    fill("http-kinds", s.http.kinds.map(([k, n]) => [k, n + "x"]));
+    fill("top-ips", s.top_ips.map(([ip, n]) => [ip, n + "x"]));
+    fill("ssh-recent", s.ssh.recent.map(a => [fmt(a.t), a.ip, a.user || "-", a.what]));
+    fill("http-recent", s.http.recent.map(a => [fmt(a.t), a.ip, a.req, a.status]));
+  } catch (e) { /* stats.json ještě neexistuje */ }
+}
+refresh();
+setInterval(refresh, 30000);
+</script>
 </body>
 </html>

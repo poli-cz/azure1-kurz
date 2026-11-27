@@ -1,0 +1,6 @@
+[Unit]
+Description=Acmesoft demo: pocitadlo pokusu o utok (SSH a HTTP)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/acmesoft-demo/attack_stats.py

@@ -40,6 +40,14 @@ nginx -t
 systemctl enable nginx >/dev/null 2>&1
 systemctl restart nginx
 
+echo "Zapínám počítadlo pokusů o útok (každých 30 s) ..."
+mkdir -p /opt/acmesoft-demo
+cp "$HERE/attack_stats.py" /opt/acmesoft-demo/attack_stats.py
+cp "$HERE/acmesoft-stats.service" "$HERE/acmesoft-stats.timer" /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now acmesoft-stats.timer >/dev/null 2>&1
+python3 /opt/acmesoft-demo/attack_stats.py
+
 echo
 echo "Hotovo. Na VM:  curl -s http://localhost/health   curl -sk https://localhost/api/status"
 if [ -n "$PUBLIC_IP" ]; then
