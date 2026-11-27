@@ -46,6 +46,9 @@ kroku hlásí Key Vault u tajemství „The operation is not allowed by RBAC“.
 
 ## 4. Uložit falešný token
 
+Přiřazení role z kroku 3 se propisuje asi minutu. Do té doby hlásí Secrets „not authorized“, stačí chvíli počkat
+a stránku obnovit.
+
 1. Trezor > **Objects > Secrets** > **+ Generate/Import**.
 2. Upload options: **Manual**
    - Name: `api-token`

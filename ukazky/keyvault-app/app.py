@@ -78,7 +78,8 @@ def read_secret(vault_name, secret_name, token):
         try:
             message = json.loads(body)["error"]["message"]
         except (ValueError, KeyError):
-            message = body[:300]
+            message = body
+        message = "\n".join(message.splitlines()[:2])[:300]
         hints = {
             401: "Token nesedí k tomuto tenantu nebo trezoru.",
             403: "Identita nemá oprávnění číst tajemství. V Key Vaultu > Access control (IAM) jí přiřaď "
