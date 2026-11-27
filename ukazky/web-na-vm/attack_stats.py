@@ -177,7 +177,7 @@ def main():
         "top_ips": [[mask_ip(ip), count] for ip, count in top],
     }
     if all_history:
-        print(json.dumps({k: stats[k] for k in ("ssh", "http", "top_ips")}, ensure_ascii=False, indent=1)[:3000])
+        print(json.dumps({k: stats[k] for k in ("ssh", "http", "top_ips")}, ensure_ascii=False, indent=1))
         return
     tmp = OUT_FILE + ".tmp"
     with open(tmp, "w", encoding="utf-8") as fh:
