@@ -88,6 +88,24 @@ Web má být dostupný jen přes WAF.
 2. Gateway se k VM dostane dál: provoz ze subnetu `snet-appgw` pouští výchozí pravidlo **AllowVnetInBound**.
 3. `http://<veřejná IP VM>` přestane odpovídat, `http://<IP gateway>` jde dál.
 
+## Lektor: rychlé založení z Cloud Shellu
+
+Založení trvá kolem čtvrt hodiny, proto se vyplatí gateway připravit před výkladem (názvy upravte):
+
+```
+RG=<rg>; VNET=<síť VM>; VM_IP=172.16.0.4
+az network vnet subnet create -g $RG --vnet-name $VNET -n snet-appgw --address-prefixes 172.16.2.0/24
+az network public-ip create -g $RG -n pip-agw-acmesoft --sku Standard --allocation-method Static
+az network application-gateway waf-policy create -g $RG -n waf-acmesoft --type Microsoft_DefaultRuleSet --version 2.1
+az network application-gateway create -g $RG -n agw-acmesoft --sku WAF_v2 --min-capacity 0 --max-capacity 2 \
+  --vnet-name $VNET --subnet snet-appgw --public-ip-address pip-agw-acmesoft --frontend-port 80 \
+  --http-settings-port 80 --http-settings-protocol Http --servers $VM_IP --priority 100 --waf-policy waf-acmesoft
+az network application-gateway waf-policy policy-setting update -g $RG --policy-name waf-acmesoft --mode Prevention --state Enabled
+```
+
+Po přepnutí na Prevention začaly útoky dostávat `403 Forbidden` (stránka „Microsoft-Azure-Application-Gateway/v2“)
+do půl minuty.
+
 ## Volitelně: logy WAF
 
 Application gateway > **Monitoring > Diagnostic settings** > **+ Add diagnostic setting** > zaškrtnout
