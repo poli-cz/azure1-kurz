@@ -37,8 +37,8 @@ ln -sf /etc/nginx/sites-available/acmesoft-demo /etc/nginx/sites-enabled/acmesof
 rm -f /etc/nginx/sites-enabled/default
 
 nginx -t
-systemctl enable --now nginx >/dev/null 2>&1
-systemctl reload nginx
+systemctl enable nginx >/dev/null 2>&1
+systemctl restart nginx
 
 echo
 echo "Hotovo. Na VM:  curl -s http://localhost/health   curl -sk https://localhost/api/status"
