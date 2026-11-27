@@ -61,6 +61,13 @@ def mask_ip(ip):
     return ":".join(addr.exploded.split(":")[:3]) + "::x"
 
 
+def is_private(ip):
+    try:
+        return ipaddress.ip_address(ip).is_private
+    except ValueError:
+        return False
+
+
 def start_time(all_history):
     if all_history:
         return datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -150,7 +157,8 @@ def http_stats(since, ignore_ips):
                 parts = req.split(" ")
                 method = parts[0] if len(parts) == 3 else ""
                 path = parts[1].split("?")[0] if len(parts) == 3 else ""
-                if ip in LOCAL_IPS or ip in ignore_ips or path == "/stats.json":
+                # privátní adresy = provoz z virtuální sítě (např. Application Gateway a její sondy), ne z internetu
+                if ip in LOCAL_IPS or ip in ignore_ips or is_private(ip) or path == "/stats.json":
                     continue
                 if not (method in ("GET", "HEAD") and path in OWN_PATHS):
                     suspicious_all += 1
