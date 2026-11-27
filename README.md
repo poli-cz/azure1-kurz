@@ -24,6 +24,7 @@ git clone https://github.com/poli-cz/azure1-kurz.git
 | [04 Key Vault](postupy/04-key-vault.md) | Aplikace si bere token z trezoru, v konfiguraci žádné tajemství |
 | [05 Terraform z VM](postupy/05-terraform-na-vm.md) | `init`, `plan`, `apply`, `destroy` |
 | [06 NSG: SSH jen přes Bastion](postupy/06-nsg-ssh-jen-pres-bastion.md) | Zavřít port 22 z internetu, nechat přístup přes Azure Bastion |
+| [07 Webová služba na VM](postupy/07-webova-sluzba-na-vm.md) | nginx na HTTP a HTTPS, porty 80 a 443 v NSG, ukázka v prohlížeči |
 | [Instalace nástrojů](postupy/instalace-nastroju.md) | Azure CLI, `psql`, Terraform, `jq` na Ubuntu |
 
 ## Ukázky
@@ -31,6 +32,7 @@ git clone https://github.com/poli-cz/azure1-kurz.git
 | | |
 |---|---|
 | [keyvault-app](ukazky/keyvault-app) | Konfigurace s odkazem do Key Vaultu, načtení přes managed identitu (jen standardní knihovna) |
+| [web-na-vm](ukazky/web-na-vm) | Falešný e-shop na nginx (HTTP a HTTPS) pro ukázky sítí |
 | [terraform](ukazky/terraform) | Resource group z kódu |
 | [app-service-python](ukazky/app-service-python) | Webová aplikace pro App Service, nasazení zipem |
 | [function-hello](ukazky/function-hello) | Azure Function s HTTP triggerem |

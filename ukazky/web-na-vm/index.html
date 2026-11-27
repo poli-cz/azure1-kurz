@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acmesoft Shop (demo)</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #f3f6fb; color: #1b1b1b; margin: 0; }
+  header { background: #0078d4; color: #fff; padding: 20px 32px; }
+  header h1 { margin: 0; font-size: 28px; }
+  header p { margin: 4px 0 0; opacity: .85; }
+  main { max-width: 760px; margin: 32px auto; padding: 0 16px; }
+  .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 24px; margin-bottom: 20px; }
+  .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .product { border: 1px solid #e5e5e5; border-radius: 10px; padding: 16px; }
+  .product b { display: block; margin-bottom: 6px; }
+  .price { color: #0078d4; font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; }
+  td { padding: 8px 4px; border-bottom: 1px solid #eee; }
+  td:first-child { color: #666; width: 45%; }
+  .scheme { font-weight: 700; }
+  .note { color: #666; font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Acmesoft Shop</h1>
+  <p>Ukázková (falešná) webová služba na virtuálním počítači v Azure</p>
+</header>
+<main>
+  <div class="card">
+    <h2>Spojení</h2>
+    <table>
+      <tr><td>Protokol</td><td class="scheme"><!--# echo var="scheme" --></td></tr>
+      <tr><td>Vaše IP adresa (jak ji vidí server)</td><td><!--# echo var="remote_addr" --></td></tr>
+      <tr><td>Server (VM)</td><td>{{VM_NAME}}</td></tr>
+      <tr><td>Privátní IP serveru</td><td>{{PRIVATE_IP}}</td></tr>
+      <tr><td>Region</td><td>{{REGION}}</td></tr>
+      <tr><td>Čas na serveru</td><td><!--# echo var="date_local" --></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Nabídka</h2>
+    <div class="products">
+      <div class="product"><b>Cloud Starter</b>Účet pro malý tým<br><span class="price">490 Kč / měsíc</span></div>
+      <div class="product"><b>Cloud Business</b>Zálohy a monitoring<br><span class="price">1 290 Kč / měsíc</span></div>
+      <div class="product"><b>Cloud Enterprise</b>Vlastní síť a podpora 24/7<br><span class="price">na dotaz</span></div>
+    </div>
+  </div>
+  <p class="note">Testovací adresy: <a href="/health">/health</a>, <a href="/api/status">/api/status</a>.
+  Na HTTPS prohlížeč varuje, protože certifikát je self-signed (nepodepsala ho žádná důvěryhodná autorita).</p>
+</main>
+</body>
+</html>
