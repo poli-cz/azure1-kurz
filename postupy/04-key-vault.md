@@ -42,6 +42,8 @@ kroku hlásí Key Vault u tajemství „The operation is not allowed by RBAC“.
 1. Trezor `<trezor>` > **Access control (IAM)** > **+ Add** > **Add role assignment**.
 2. Role: vyhledat **Key Vault Secrets Officer** > označit > **Next**.
 3. Assign access to: **User, group, or service principal** > **+ Select members** > vybrat sebe > **Select**.
+   Pozor na jmenovce: vybrat účet, kterým jste přihlášení v portálu (vpravo nahoře). Host z jiného tenantu má
+   v seznamu tvar `jmeno_domena.cz#EXT#@...`.
 4. **Review + assign** (dvakrát).
 
 ## 4. Uložit falešný token
