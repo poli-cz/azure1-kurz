@@ -73,10 +73,10 @@ def start_time(all_history):
 
 
 def ssh_stats(since):
-    cmd = ["journalctl", "--no-pager", "-o", "json", "-t", "sshd", "-t", "sshd-session",
-           "--since", since.strftime("%Y-%m-%d %H:%M:%S")]
-    out = subprocess.run(cmd, capture_output=True, text=True, env=dict(os.environ, TZ="UTC")).stdout
-    attempts, accepted = {}, 0
+    # Celá historie: adresy správců (úspěšné přihlášení kdykoli) se do útoků nepočítají.
+    cmd = ["journalctl", "--no-pager", "-o", "json", "-t", "sshd", "-t", "sshd-session"]
+    out = subprocess.run(cmd, capture_output=True, text=True).stdout
+    attempts, accepted, admin_ips = {}, 0, set()
     for n, line in enumerate(out.splitlines()):
         try:
             entry = json.loads(line)
@@ -86,8 +86,12 @@ def ssh_stats(since):
         if not isinstance(msg, str):
             continue
         when = datetime.fromtimestamp(int(entry["__REALTIME_TIMESTAMP"]) / 1e6, timezone.utc)
-        if ACCEPTED.search(msg):
-            accepted += 1
+        ok = ACCEPTED.search(msg)
+        if ok:
+            admin_ips.add(ok.group("ip"))
+            accepted += when >= since
+            continue
+        if when < since:
             continue
         for pattern, kind, weight in SSH_PATTERNS:
             m = pattern.search(msg)
@@ -105,7 +109,7 @@ def ssh_stats(since):
                 if user and not prev["user"]:
                     prev["user"] = user
             break
-    items = sorted(attempts.values(), key=lambda a: a["t"])
+    items = sorted((a for a in attempts.values() if a["ip"] not in admin_ips), key=lambda a: a["t"])
     return {
         "attempts": len(items),
         "ips": len({a["ip"] for a in items}),
@@ -114,7 +118,7 @@ def ssh_stats(since):
         "top_users": Counter(a["user"] for a in items if a["user"]).most_common(10),
         "recent": [{"t": a["t"].isoformat(), "ip": mask_ip(a["ip"]), "user": a["user"] or "", "what": a["kind"]}
                    for a in items[-RECENT:]][::-1],
-    }, Counter(a["ip"] for a in items)
+    }, Counter(a["ip"] for a in items), admin_ips
 
 
 def classify(method, path, req):
@@ -126,7 +130,7 @@ def classify(method, path, req):
     return "Ostatní neznámé adresy"
 
 
-def http_stats(since):
+def http_stats(since, ignore_ips):
     total, ips, suspicious = 0, set(), []
     for path_ in NGINX_LOGS:
         if not os.path.exists(path_):
@@ -144,7 +148,7 @@ def http_stats(since):
                 parts = req.split(" ")
                 method = parts[0] if len(parts) == 3 else ""
                 path = parts[1].split("?")[0] if len(parts) == 3 else ""
-                if when < since or ip in LOCAL_IPS or path == "/stats.json":
+                if when < since or ip in LOCAL_IPS or ip in ignore_ips or path == "/stats.json":
                     continue
                 total += 1
                 ips.add(ip)
@@ -166,8 +170,8 @@ def http_stats(since):
 def main():
     all_history = "--vse" in sys.argv[1:]
     since = start_time(all_history)
-    ssh, ssh_ips = ssh_stats(since)
-    http, http_ips = http_stats(since)
+    ssh, ssh_ips, admin_ips = ssh_stats(since)
+    http, http_ips = http_stats(since, admin_ips)
     top = (ssh_ips + http_ips).most_common(8)
     stats = {
         "since": since.isoformat(),
