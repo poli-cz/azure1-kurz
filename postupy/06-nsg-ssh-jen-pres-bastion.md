@@ -28,8 +28,15 @@ timeout 5 bash -c '</dev/tcp/<veřejná-IP-VM>/22' && echo OTEVRENO || echo ZAVR
    - Name: `Allow-SSH-Bastion`
 3. **Add**.
 
-Bastion Developer se k VM připojuje z adresy Azure platformy 168.63.129.16. Bastion Basic nebo Standard má vlastní
-subnet `AzureBastionSubnet`, tam jako zdroj zadejte rozsah toho subnetu (nebo Service Tag **VirtualNetwork**).
+### Odkud se Bastion připojuje
+
+- **Bastion Developer** nemá vlastní IP adresu ani subnet, v portálu ji nenajdete. Je to sdílená služba a k VM se
+  připojuje z **168.63.129.16**. To je pevná virtuální adresa platformy Azure, stejná ve všech regionech
+  a předplatných (přes ni VM dostává i DNS, DHCP a komunikaci s agentem VM).
+- **Bastion Basic nebo Standard** má vlastní subnet `AzureBastionSubnet` a spojení chodí z jeho rozsahu:
+  virtuální síť > **Subnets** > `AzureBastionSubnet` > Address range. Ten rozsah zadejte jako zdroj pravidla
+  (nebo Service Tag **VirtualNetwork**).
+- Ověření na VM: připojit se přes Bastion a spustit `echo $SSH_CLIENT`. První údaj je adresa, odkud spojení přišlo.
 
 ## 3. Zakázat SSH z internetu
 
@@ -53,7 +60,7 @@ Pravidla se vyhodnocují od nejnižšího čísla priority; první, které sedí
   (Adresu 168.63.129.16 IP flow verify neotestuje, je vyhrazená.)
 - Přehled všech pravidel včetně výchozích: VM > Networking > **Effective security rules**.
 - Přes Bastion: VM > **Connect > Connect via Bastion** > uživatel a klíč nebo heslo > **Connect**. Terminál se
-  otevře v prohlížeči.
+  otevře v prohlížeči. V něm `echo $SSH_CLIENT` ukáže adresu Bastionu.
 
 Už otevřené SSH spojení z notebooku se změnou pravidel nemusí hned spadnout, nové se ale nenaváže.
 
