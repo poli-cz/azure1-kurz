@@ -23,6 +23,7 @@ git clone https://github.com/poli-cz/azure1-kurz.git
 | [03 PostgreSQL přes Entra ID](postupy/03-postgres-pres-entra-id.md) | Přihlášení do databáze identitou VM místo hesla |
 | [04 Key Vault](postupy/04-key-vault.md) | Aplikace si bere token z trezoru, v konfiguraci žádné tajemství |
 | [05 Terraform z VM](postupy/05-terraform-na-vm.md) | `init`, `plan`, `apply`, `destroy` |
+| [06 NSG: SSH jen přes Bastion](postupy/06-nsg-ssh-jen-pres-bastion.md) | Zavřít port 22 z internetu, nechat přístup přes Azure Bastion |
 | [Instalace nástrojů](postupy/instalace-nastroju.md) | Azure CLI, `psql`, Terraform, `jq` na Ubuntu |
 
 ## Ukázky
