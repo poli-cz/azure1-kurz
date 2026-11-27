@@ -25,6 +25,7 @@ git clone https://github.com/poli-cz/azure1-kurz.git
 | [05 Terraform z VM](postupy/05-terraform-na-vm.md) | `init`, `plan`, `apply`, `destroy` |
 | [06 NSG: SSH jen přes Bastion](postupy/06-nsg-ssh-jen-pres-bastion.md) | Zavřít port 22 z internetu, nechat přístup přes Azure Bastion |
 | [07 Webová služba na VM](postupy/07-webova-sluzba-na-vm.md) | nginx na HTTP a HTTPS, porty 80 a 443 v NSG, ukázka v prohlížeči |
+| [08 WAF před webem](postupy/08-waf-pred-webem.md) | Application Gateway s WAF, Detection a Prevention, blokování SQL injection a XSS |
 | [Instalace nástrojů](postupy/instalace-nastroju.md) | Azure CLI, `psql`, Terraform, `jq` na Ubuntu |
 
 ## Ukázky
