@@ -49,6 +49,7 @@
       <div class="counter"><div class="num" id="http-suspicious">0</div><div class="lbl">podezřelých HTTP požadavků</div></div>
       <div class="counter"><div class="num" id="http-requests">0</div><div class="lbl">HTTP požadavků celkem</div></div>
     </div>
+    <p class="note" id="history"></p>
     <div class="cols">
       <div><h3>Nejčastěji zkoušená jména (SSH)</h3><table class="log" id="top-users"></table></div>
       <div><h3>Typy HTTP útoků</h3><table class="log" id="http-kinds"></table></div>
@@ -105,6 +106,11 @@ async function refresh() {
     document.getElementById("ssh-ips").textContent = s.ssh.ips;
     document.getElementById("http-suspicious").textContent = s.http.suspicious;
     document.getElementById("http-requests").textContent = s.http.requests;
+    const h = s.ssh.history;
+    if (h && h.first) {
+      document.getElementById("history").textContent = "Za celou dobu, co VM běží (první záznam " + fmt(h.first) + "): "
+        + h.attempts + " pokusů o SSH z " + h.ips + " různých adres a " + s.http.history.suspicious + " podezřelých HTTP požadavků.";
+    }
     fill("top-users", s.ssh.top_users.map(([u, n]) => [u, n + "x"]));
     fill("http-kinds", s.http.kinds.map(([k, n]) => [k, n + "x"]));
     fill("top-ips", s.top_ips.map(([ip, n]) => [ip, n + "x"]));

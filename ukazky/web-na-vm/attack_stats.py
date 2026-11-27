@@ -91,8 +91,6 @@ def ssh_stats(since):
             admin_ips.add(ok.group("ip"))
             accepted += when >= since
             continue
-        if when < since:
-            continue
         for pattern, kind, weight in SSH_PATTERNS:
             m = pattern.search(msg)
             if not m:
@@ -109,8 +107,12 @@ def ssh_stats(since):
                 if user and not prev["user"]:
                     prev["user"] = user
             break
-    items = sorted((a for a in attempts.values() if a["ip"] not in admin_ips), key=lambda a: a["t"])
+    all_items = sorted((a for a in attempts.values() if a["ip"] not in admin_ips), key=lambda a: a["t"])
+    items = [a for a in all_items if a["t"] >= since]
+    history = {"first": all_items[0]["t"].isoformat() if all_items else None,
+               "attempts": len(all_items), "ips": len({a["ip"] for a in all_items})}
     return {
+        "history": history,
         "attempts": len(items),
         "ips": len({a["ip"] for a in items}),
         "accepted": accepted,
@@ -131,7 +133,7 @@ def classify(method, path, req):
 
 
 def http_stats(since, ignore_ips):
-    total, ips, suspicious = 0, set(), []
+    total, ips, suspicious, suspicious_all = 0, set(), [], 0
     for path_ in NGINX_LOGS:
         if not os.path.exists(path_):
             continue
@@ -148,7 +150,11 @@ def http_stats(since, ignore_ips):
                 parts = req.split(" ")
                 method = parts[0] if len(parts) == 3 else ""
                 path = parts[1].split("?")[0] if len(parts) == 3 else ""
-                if when < since or ip in LOCAL_IPS or ip in ignore_ips or path == "/stats.json":
+                if ip in LOCAL_IPS or ip in ignore_ips or path == "/stats.json":
+                    continue
+                if not (method in ("GET", "HEAD") and path in OWN_PATHS):
+                    suspicious_all += 1
+                if when < since:
                     continue
                 total += 1
                 ips.add(ip)
@@ -158,6 +164,7 @@ def http_stats(since, ignore_ips):
                                    "status": m.group("status"), "kind": classify(method, path, req)})
     suspicious.sort(key=lambda s: s["t"])
     return {
+        "history": {"suspicious": suspicious_all},
         "requests": total,
         "ips": len(ips),
         "suspicious": len(suspicious),
