@@ -25,7 +25,7 @@ přihlášení jen heslem (PostgreSQL authentication only).
    Pokud se VM v hledání neukáže, hledat podle Object (principal) ID z kroku 1.
 4. **Save**. Uložení trvá 2 až 3 minuty.
 5. Po uložení obnovit stránku a zkontrolovat, že `<vm>` je v seznamu **Microsoft Entra administrators**. Pokud tam
-   není (admin přidaný během ukládání změny metody se neuloží), přidat ho znovu a znovu **Save**.
+   není (výběr se někdy neuloží), přidat ho znovu a znovu **Save**.
 
 Pro ukázku je adminem přímo identita VM. V produkci je adminem skupina lidí a aplikace dostane vlastní roli
 s menšími právy (funkce `pgaadauth_create_principal`).
